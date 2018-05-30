@@ -1,6 +1,6 @@
-// Parses the given FILE and prints it as JSON so it can be compared against Esprima's output. 
+// Parses the given FILE and prints it as JSON so it can be compared against Esprima's output.
 
-import '../lib/parsejs.dart';
+import 'package:parsejs/parsejs.dart';
 import 'ast_json.dart';
 
 import 'dart:io';
@@ -9,8 +9,8 @@ import 'dart:convert' show JSON;
 class Args {
   List<String> args = <String>[];
   Set<String> flags = new Set<String>();
-  
-  bool operator[](String flag) => flags.contains(flag);
+
+  bool operator [](String flag) => flags.contains(flag);
 }
 
 Args parseArgs(List<String> args) {
@@ -27,28 +27,29 @@ Args parseArgs(List<String> args) {
 
 void main(List<String> cmdargs) {
   Args cmd = parseArgs(cmdargs);
-  
+
   if (cmd.args.length != 1) {
-    print("Usage: parser_test.dart [--json [--range] [--line]] [--time] FILE.js");
+    print(
+        "Usage: parser_test.dart [--json [--range] [--line]] [--time] FILE.js");
     exit(1);
   }
-  
+
   File file = new File(cmd.args[0]);
-  file.readAsString().then((String text) {
+  file.readAsString().then<String>((String text) {
     try {
       Stopwatch watch = new Stopwatch()..start();
       Program ast = parsejs(text, filename: file.path);
       int time = watch.elapsedMilliseconds;
-      
+
       if (cmd['time']) {
         print(time);
       }
-            
+
       if (cmd['json']) {
-        var json = new Ast2Json(ranges: cmd['range'], lines: cmd['line']).visit(ast);
+        var json =
+            new Ast2Json(ranges: cmd['range'], lines: cmd['line']).visit(ast);
         print(JSON.encode(json));
       }
-      
     } on ParseError catch (e) {
       stderr.writeln(e);
       exit(1);
